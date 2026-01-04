@@ -7,7 +7,7 @@ services:
     startCommand: panel serve dashboard.py --address 0.0.0.0 --port $PORT --allow-websocket-origin=* --num-procs=1
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11.0
+        value: 3.11.9
       - key: ADMIN_PASSWORD
         generateValue: true
       - key: MANAGER_PASSWORD
