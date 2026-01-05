@@ -4,7 +4,7 @@ services:
     runtime: python
     plan: free
     buildCommand: bash render-build.sh
-    startCommand: panel serve dashboard.py --address 0.0.0.0 --port $PORT --allow-websocket-origin=* --num-procs=1
+    startCommand: bash start.sh
     envVars:
       - key: ADMIN_PASSWORD
         generateValue: true
