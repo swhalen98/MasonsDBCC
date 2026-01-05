@@ -3,11 +3,9 @@ services:
     name: masons-pl-dashboard
     runtime: python
     plan: free
-    buildCommand: pip install -r requirements.txt && python database.py
+    buildCommand: bash render-build.sh
     startCommand: panel serve dashboard.py --address 0.0.0.0 --port $PORT --allow-websocket-origin=* --num-procs=1
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.9
       - key: ADMIN_PASSWORD
         generateValue: true
       - key: MANAGER_PASSWORD
