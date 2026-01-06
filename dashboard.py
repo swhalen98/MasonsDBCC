@@ -14,6 +14,17 @@ from config import DASHBOARD_TITLE, DASHBOARD_PORT, LOCATIONS
 # Enable Panel extensions
 pn.extension('tabulator', sizing_mode="stretch_width")
 
+# Industry Benchmarks for Restaurant Business
+BENCHMARKS = {
+    'food_cost_pct': 28.0,  # Ideal: 25-30%
+    'labor_cost_pct': 30.0,  # Ideal: 25-35%
+    'prime_cost_pct': 60.0,  # Ideal: 55-65% (Food + Labor)
+    'gross_margin_pct': 65.0,  # Ideal: 60-70%
+    'net_margin_pct': 10.0,  # Ideal: 8-15%
+    'ebitda_margin_pct': 15.0,  # Ideal: 12-18%
+    'opex_ratio_pct': 25.0,  # Ideal: 20-30%
+}
+
 # Initialize
 db = FinancialDatabase()
 auth = SimpleAuth()
@@ -127,23 +138,29 @@ class PLDashboard:
         sidebar = pn.Column(
             pn.pane.Markdown(f"### Welcome, {self.current_user}"),
             pn.pane.Markdown("---"),
+            pn.pane.Markdown("#### Filters"),
             self.view_selector,
             self.region_selector if self.view_selector.value == 'By Region' else None,
             self.location_selector if self.view_selector.value == 'By Location' else None,
             self.date_range,
             pn.pane.Markdown("---"),
-            pn.pane.Markdown("#### Quick Stats"),
+            pn.pane.Markdown("#### Key Performance Indicators"),
             summary_cards,
-            width=300,
+            width=350,
+            scroll=True,
+            styles={'background': '#f8f9fa', 'padding': '15px', 'border-radius': '5px'}
         )
 
         # Main content
         main_content = pn.Column(
             pn.pane.Markdown(f"# {DASHBOARD_TITLE}"),
             pn.pane.Markdown(f"## {self.get_view_title()}"),
+            pn.layout.Divider(),
             charts,
-            pn.pane.Markdown("### Detailed Data"),
+            pn.layout.Divider(),
+            pn.pane.Markdown("### Detailed Financial Data"),
             data_table,
+            sizing_mode='stretch_width'
         )
 
         return pn.Row(sidebar, main_content)
@@ -187,30 +204,190 @@ class PLDashboard:
 
         return df
 
+    def calculate_kpis(self, df):
+        """Calculate key performance indicators"""
+        if df.empty or 'line_item' not in df.columns:
+            return {}
+
+        # Aggregate by line item
+        totals = df.groupby('line_item')['amount'].sum()
+
+        # Get key values
+        revenue = totals.get('Total Revenue', 0)
+        cogs = totals.get('Cost of Goods Sold', 0)
+        gross_profit = totals.get('Gross Profit', 0)
+        labor = totals.get('Labor', 0)
+        total_opex = totals.get('Total Operating Expenses', 0)
+        net_income = totals.get('Net Income', 0)
+        ebitda = totals.get('EBITDA', 0)
+
+        kpis = {}
+
+        if revenue > 0:
+            # Calculate all KPIs
+            kpis['revenue'] = revenue
+            kpis['gross_margin_pct'] = (gross_profit / revenue) * 100
+            kpis['food_cost_pct'] = (cogs / revenue) * 100
+            kpis['labor_cost_pct'] = (labor / revenue) * 100
+            kpis['prime_cost_pct'] = ((cogs + labor) / revenue) * 100
+            kpis['net_margin_pct'] = (net_income / revenue) * 100
+            kpis['ebitda_margin_pct'] = (ebitda / revenue) * 100 if ebitda != 0 else 0
+            kpis['opex_ratio_pct'] = (total_opex / revenue) * 100
+
+            # Calculate location count if available
+            if 'location_code' in df.columns:
+                location_count = df['location_code'].nunique()
+                kpis['revenue_per_location'] = revenue / location_count if location_count > 0 else 0
+                kpis['location_count'] = location_count
+
+        return kpis
+
+    def create_kpi_card(self, title, value, benchmark=None, format_type='percent', status_color=None):
+        """Create a styled KPI card with benchmark comparison"""
+        if format_type == 'percent':
+            value_str = f"{value:.1f}%"
+        elif format_type == 'currency':
+            value_str = f"${value:,.0f}"
+        else:
+            value_str = f"{value:.0f}"
+
+        # Determine status color based on benchmark
+        if status_color is None and benchmark is not None:
+            if format_type == 'percent':
+                # For cost metrics (lower is better)
+                if 'cost' in title.lower() or 'opex' in title.lower():
+                    diff = value - benchmark
+                    if diff <= -2:
+                        status_color = '#28a745'  # Green - significantly better
+                    elif diff <= 2:
+                        status_color = '#ffc107'  # Yellow - within range
+                    else:
+                        status_color = '#dc3545'  # Red - needs attention
+                # For margin metrics (higher is better)
+                else:
+                    diff = value - benchmark
+                    if diff >= 2:
+                        status_color = '#28a745'  # Green
+                    elif diff >= -2:
+                        status_color = '#ffc107'  # Yellow
+                    else:
+                        status_color = '#dc3545'  # Red
+            else:
+                status_color = '#007bff'  # Blue for non-comparable metrics
+
+        if status_color is None:
+            status_color = '#007bff'
+
+        benchmark_str = f"<br><small style='color: #666;'>Benchmark: {benchmark:.1f}%</small>" if benchmark else ""
+
+        card_html = f"""
+        <div style='
+            background: linear-gradient(135deg, {status_color}15 0%, {status_color}05 100%);
+            border-left: 4px solid {status_color};
+            padding: 15px;
+            margin: 8px 0;
+            border-radius: 4px;
+        '>
+            <div style='font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.5px;'>{title}</div>
+            <div style='font-size: 24px; font-weight: bold; color: {status_color}; margin: 5px 0;'>{value_str}</div>
+            {benchmark_str}
+        </div>
+        """
+        return pn.pane.HTML(card_html, sizing_mode='stretch_width')
+
     def create_summary_cards(self, df):
-        """Create summary stat cards"""
+        """Create KPI cards with benchmarks"""
         if df.empty:
             return pn.pane.Markdown("*No data available*")
 
-        stats = []
+        kpis = self.calculate_kpis(df)
 
-        # Calculate key metrics
-        if 'amount' in df.columns:
-            latest_revenue = df[df['line_item'] == 'Total Revenue']['amount'].sum()
-            latest_net_income = df[df['line_item'] == 'Net Income']['amount'].sum()
+        if not kpis:
+            return pn.pane.Markdown("*Insufficient data for KPIs*")
 
-            stats.append(f"**Total Revenue:** ${latest_revenue:,.2f}")
-            stats.append(f"**Net Income:** ${latest_net_income:,.2f}")
+        cards = []
 
-            if latest_revenue > 0:
-                margin = (latest_net_income / latest_revenue) * 100
-                stats.append(f"**Profit Margin:** {margin:.1f}%")
+        # Revenue & Net Margin (most important)
+        if 'revenue' in kpis:
+            cards.append(self.create_kpi_card(
+                "Total Revenue",
+                kpis['revenue'],
+                format_type='currency',
+                status_color='#007bff'
+            ))
 
-        if 'location_code' in df.columns:
-            location_count = df['location_code'].nunique()
-            stats.append(f"**Locations:** {location_count}")
+        if 'net_margin_pct' in kpis:
+            cards.append(self.create_kpi_card(
+                "Net Profit Margin",
+                kpis['net_margin_pct'],
+                benchmark=BENCHMARKS['net_margin_pct'],
+                format_type='percent'
+            ))
 
-        return pn.pane.Markdown('\n\n'.join(stats))
+        # Prime Cost (Food + Labor) - Critical Restaurant Metric
+        if 'prime_cost_pct' in kpis:
+            cards.append(self.create_kpi_card(
+                "Prime Cost %",
+                kpis['prime_cost_pct'],
+                benchmark=BENCHMARKS['prime_cost_pct'],
+                format_type='percent'
+            ))
+
+        # Food Cost %
+        if 'food_cost_pct' in kpis:
+            cards.append(self.create_kpi_card(
+                "Food Cost %",
+                kpis['food_cost_pct'],
+                benchmark=BENCHMARKS['food_cost_pct'],
+                format_type='percent'
+            ))
+
+        # Labor Cost %
+        if 'labor_cost_pct' in kpis:
+            cards.append(self.create_kpi_card(
+                "Labor Cost %",
+                kpis['labor_cost_pct'],
+                benchmark=BENCHMARKS['labor_cost_pct'],
+                format_type='percent'
+            ))
+
+        # Gross Margin
+        if 'gross_margin_pct' in kpis:
+            cards.append(self.create_kpi_card(
+                "Gross Margin %",
+                kpis['gross_margin_pct'],
+                benchmark=BENCHMARKS['gross_margin_pct'],
+                format_type='percent'
+            ))
+
+        # EBITDA Margin
+        if 'ebitda_margin_pct' in kpis:
+            cards.append(self.create_kpi_card(
+                "EBITDA Margin %",
+                kpis['ebitda_margin_pct'],
+                benchmark=BENCHMARKS['ebitda_margin_pct'],
+                format_type='percent'
+            ))
+
+        # Operating Expense Ratio
+        if 'opex_ratio_pct' in kpis:
+            cards.append(self.create_kpi_card(
+                "OpEx Ratio %",
+                kpis['opex_ratio_pct'],
+                benchmark=BENCHMARKS['opex_ratio_pct'],
+                format_type='percent'
+            ))
+
+        # Revenue per Location
+        if 'revenue_per_location' in kpis:
+            cards.append(self.create_kpi_card(
+                f"Avg Revenue/Location ({int(kpis.get('location_count', 0))} locs)",
+                kpis['revenue_per_location'],
+                format_type='currency',
+                status_color='#17a2b8'
+            ))
+
+        return pn.Column(*cards, sizing_mode='stretch_width')
 
     def create_charts(self, df):
         """Create visualization charts"""
@@ -220,45 +397,127 @@ class PLDashboard:
         charts = []
 
         try:
-            # Revenue trend over time
+            # Revenue over time - Enhanced
             if 'period_date' in df.columns and 'amount' in df.columns:
                 revenue_df = df[df['line_item'] == 'Total Revenue'].copy()
-                if not revenue_df.empty:
+                if not revenue_df.empty and len(revenue_df) > 1:
+                    revenue_df = revenue_df.groupby('period_date')['amount'].sum().reset_index()
                     revenue_df = revenue_df.sort_values('period_date')
+
                     chart = revenue_df.hvplot.line(
                         x='period_date',
                         y='amount',
-                        title='Revenue Trend',
-                        xlabel='Date',
+                        title='Revenue Over Time',
+                        xlabel='Period',
                         ylabel='Revenue ($)',
-                        height=300,
-                        responsive=True
+                        height=350,
+                        width=800,
+                        color='#1f77b4',
+                        line_width=3,
+                        responsive=True,
+                        grid=True
+                    ).opts(
+                        fontsize={'title': 14, 'labels': 11, 'xticks': 9, 'yticks': 10}
                     )
-                    charts.append(chart)
+                    charts.append(pn.pane.HoloViews(chart, sizing_mode='stretch_width'))
 
-            # P&L breakdown (latest period)
+            # Net Income over time - Enhanced
+            if 'period_date' in df.columns and 'amount' in df.columns:
+                ni_df = df[df['line_item'] == 'Net Income'].copy()
+                if not ni_df.empty and len(ni_df) > 1:
+                    ni_df = ni_df.groupby('period_date')['amount'].sum().reset_index()
+                    ni_df = ni_df.sort_values('period_date')
+
+                    # Color based on positive/negative
+                    chart = ni_df.hvplot.line(
+                        x='period_date',
+                        y='amount',
+                        title='Net Income Over Time',
+                        xlabel='Period',
+                        ylabel='Net Income ($)',
+                        height=350,
+                        width=800,
+                        color='#28a745',
+                        line_width=3,
+                        responsive=True,
+                        grid=True
+                    ).opts(
+                        fontsize={'title': 14, 'labels': 11, 'xticks': 9, 'yticks': 10}
+                    )
+                    charts.append(pn.pane.HoloViews(chart, sizing_mode='stretch_width'))
+
+            # KPI Trends over time (if multiple periods)
+            if 'period_date' in df.columns and 'year' in df.columns and 'month' in df.columns:
+                # Group by period and calculate KPIs per period
+                periods = df.groupby(['year', 'month', 'period_date'])
+
+                kpi_trends = []
+                for (year, month, period), period_df in periods:
+                    kpis = self.calculate_kpis(period_df)
+                    if kpis:
+                        kpis['period_date'] = period
+                        kpi_trends.append(kpis)
+
+                if len(kpi_trends) > 1:
+                    kpi_df = pd.DataFrame(kpi_trends)
+                    kpi_df = kpi_df.sort_values('period_date')
+
+                    # Plot key margin trends
+                    if all(col in kpi_df.columns for col in ['net_margin_pct', 'gross_margin_pct', 'prime_cost_pct']):
+                        margin_chart = kpi_df.hvplot.line(
+                            x='period_date',
+                            y=['net_margin_pct', 'gross_margin_pct', 'prime_cost_pct'],
+                            title='Key Margin Trends',
+                            xlabel='Period',
+                            ylabel='Percentage (%)',
+                            height=350,
+                            width=800,
+                            legend='top_right',
+                            line_width=2,
+                            responsive=True,
+                            grid=True
+                        ).opts(
+                            fontsize={'title': 14, 'labels': 11, 'xticks': 9, 'yticks': 10}
+                        )
+                        charts.append(pn.pane.HoloViews(margin_chart, sizing_mode='stretch_width'))
+
+            # P&L breakdown (all periods combined)
             if 'line_item' in df.columns and 'amount' in df.columns:
                 pnl_df = df.groupby('line_item')['amount'].sum().reset_index()
                 pnl_df = pnl_df[pnl_df['amount'] != 0]  # Remove zero values
+
+                # Filter to key line items for cleaner visualization
+                key_items = ['Total Revenue', 'Cost of Goods Sold', 'Gross Profit', 'Labor',
+                            'Total Operating Expenses', 'EBITDA', 'Net Income']
+                pnl_df = pnl_df[pnl_df['line_item'].isin(key_items)]
 
                 if not pnl_df.empty:
                     chart = pnl_df.hvplot.bar(
                         x='line_item',
                         y='amount',
-                        title='P&L Breakdown',
+                        title='P&L Summary (Period Total)',
                         xlabel='',
                         ylabel='Amount ($)',
-                        height=300,
+                        height=350,
+                        width=800,
                         rot=45,
-                        responsive=True
+                        color='#ff7f0e',
+                        responsive=True,
+                        grid=True
+                    ).opts(
+                        fontsize={'title': 14, 'labels': 11, 'xticks': 9, 'yticks': 10}
                     )
-                    charts.append(chart)
+                    charts.append(pn.pane.HoloViews(chart, sizing_mode='stretch_width'))
 
         except Exception as e:
             return pn.pane.Markdown(f"*Error creating charts: {e}*")
 
         if charts:
-            return pn.Column(*charts)
+            return pn.Column(
+                pn.pane.Markdown("## Performance Charts"),
+                *charts,
+                sizing_mode='stretch_width'
+            )
         else:
             return pn.pane.Markdown("*Insufficient data for visualization*")
 
