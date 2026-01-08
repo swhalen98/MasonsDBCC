@@ -1,14 +1,47 @@
 # Financial Statement File Naming Convention
 
 ## Format
+
+### Option 1: Single File (All Statements Combined)
 ```
 YYYY-MM_LocationCode.pdf
 ```
+or
+```
+YYYY-MM_LocationCode_ALL.pdf
+```
+
+### Option 2: Separate Files by Statement Type
+```
+YYYY-MM_LocationCode_IS.pdf  (Income Statement)
+YYYY-MM_LocationCode_BS.pdf  (Balance Sheet)
+YYYY-MM_LocationCode_CF.pdf  (Cash Flow Statement)
+```
+
+### Statement Type Codes
+- **IS** = Income Statement (Profit & Loss)
+- **BS** = Balance Sheet
+- **CF** = Cash Flow Statement
+- **ALL** = All statements (same as no suffix)
 
 ## Examples
-- `2026-01_ANN.pdf` - Annapolis, January 2026
-- `2026-02_ARL.pdf` - Arlington, February 2026
-- `2026-12_MIL.pdf` - Milan, December 2026
+
+### Single File (All Statements)
+- `2026-01_ANN.pdf` - Annapolis, January 2026 (all statements)
+- `2026-02_ARL.pdf` - Arlington, February 2026 (all statements)
+- `2026-12_MIL_ALL.pdf` - Milan, December 2026 (all statements, explicit)
+
+### Multiple Files (Separate Statements)
+- `2026-01_ANN_IS.pdf` - Annapolis Income Statement, January 2026
+- `2026-01_ANN_BS.pdf` - Annapolis Balance Sheet, January 2026
+- `2026-01_ANN_CF.pdf` - Annapolis Cash Flow, January 2026
+
+### Mixed (Some Locations Have Different Formats)
+- Location A: `2026-01_ANN.pdf` (all in one)
+- Location B: `2026-01_ARL_IS.pdf` + `2026-01_ARL_BS.pdf` (only two statements)
+- Location C: `2026-01_AUS_IS.pdf` + `2026-01_AUS_BS.pdf` + `2026-01_AUS_CF.pdf` (all three separate)
+
+**This is completely flexible!** Each location can submit in whatever format works best for them.
 
 ## Location Codes
 
@@ -41,6 +74,7 @@ YYYY-MM_LocationCode.pdf
 | PAN | Panama City Beach | Panama City Beach, FL | Open |
 | REH | Rehoboth Beach | Rehoboth Beach, DE | Open |
 | RES | Reston | Reston, VA | Open |
+| SCO | Scottsdale | Scottsdale, AZ | Open |
 | COC | Coconut Point | Estero, FL | Coming soon |
 | FLO | Florence | Florence, Italy | Coming soon |
 
@@ -53,16 +87,36 @@ YYYY-MM_LocationCode.pdf
 - **Southwest Florida**: FMD, FMD2, BEL, COC
 - **Texas**: AUS, DAL
 - **Colorado**: COS, DEN
+- **Arizona**: SCO
 - **Northeast**: LON
 - **Midwest**: MOA
 - **International**: MIL, FLO
 
 ## Instructions for Uploading
 
-1. Save your financial statement as a PDF
-2. Rename it using the format: `YYYY-MM_LocationCode.pdf`
-3. Upload to the `financials/` folder
-4. The system will automatically process it within 5 minutes
+1. **Save your financial statement(s) as PDF**
+   - If all three statements (Income Statement, Balance Sheet, Cash Flow) are in one PDF, that's fine!
+   - If they're in separate PDFs, that's also fine!
+   - You can even send just the Income Statement if that's all you have
+
+2. **Rename using the appropriate format:**
+   - **All-in-one file**: `YYYY-MM_LocationCode.pdf`
+   - **Separate files**: `YYYY-MM_LocationCode_IS.pdf`, `YYYY-MM_LocationCode_BS.pdf`, `YYYY-MM_LocationCode_CF.pdf`
+
+3. **Upload to the `financials/` folder**
+   - Via GitHub Codespaces (drag & drop)
+   - Or via Google Drive sync (automatic)
+
+4. **Process the statements:**
+   ```bash
+   python process_financials.py
+   ```
+
+The system will automatically:
+- Detect which statement types are in each file
+- Extract the relevant financial data
+- Store everything in the database
+- Update the dashboard
 
 ## Missing Statements
 

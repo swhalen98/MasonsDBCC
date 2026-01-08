@@ -48,13 +48,39 @@ class FinancialDatabase:
             )
         """)
 
-        # P&L line items table
+        # P&L line items table (Income Statement)
         self.conn.execute("""
             CREATE TABLE IF NOT EXISTS pnl_data (
                 id INTEGER PRIMARY KEY,
                 statement_id INTEGER NOT NULL,
                 line_item VARCHAR NOT NULL,
                 amount DECIMAL(15, 2),
+                FOREIGN KEY (statement_id) REFERENCES financial_statements(id),
+                UNIQUE(statement_id, line_item)
+            )
+        """)
+
+        # Balance Sheet data table
+        self.conn.execute("""
+            CREATE TABLE IF NOT EXISTS balance_sheet_data (
+                id INTEGER PRIMARY KEY,
+                statement_id INTEGER NOT NULL,
+                line_item VARCHAR NOT NULL,
+                amount DECIMAL(15, 2),
+                category VARCHAR,
+                FOREIGN KEY (statement_id) REFERENCES financial_statements(id),
+                UNIQUE(statement_id, line_item)
+            )
+        """)
+
+        # Cash Flow data table
+        self.conn.execute("""
+            CREATE TABLE IF NOT EXISTS cash_flow_data (
+                id INTEGER PRIMARY KEY,
+                statement_id INTEGER NOT NULL,
+                line_item VARCHAR NOT NULL,
+                amount DECIMAL(15, 2),
+                category VARCHAR,
                 FOREIGN KEY (statement_id) REFERENCES financial_statements(id),
                 UNIQUE(statement_id, line_item)
             )
@@ -106,6 +132,30 @@ class FinancialDatabase:
             """, [statement_id, line_item, amount])
         except Exception as e:
             print(f"Error adding P&L data: {e}")
+
+    def add_balance_sheet_data(self, statement_id, line_item, amount, category=None):
+        """Add Balance Sheet line item data"""
+        try:
+            self.conn.execute("""
+                INSERT INTO balance_sheet_data (statement_id, line_item, amount, category)
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT (statement_id, line_item)
+                DO UPDATE SET amount = EXCLUDED.amount, category = EXCLUDED.category
+            """, [statement_id, line_item, amount, category])
+        except Exception as e:
+            print(f"Error adding Balance Sheet data: {e}")
+
+    def add_cash_flow_data(self, statement_id, line_item, amount, category=None):
+        """Add Cash Flow line item data"""
+        try:
+            self.conn.execute("""
+                INSERT INTO cash_flow_data (statement_id, line_item, amount, category)
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT (statement_id, line_item)
+                DO UPDATE SET amount = EXCLUDED.amount, category = EXCLUDED.category
+            """, [statement_id, line_item, amount, category])
+        except Exception as e:
+            print(f"Error adding Cash Flow data: {e}")
 
     def mark_statement_processed(self, statement_id):
         """Mark a statement as processed"""

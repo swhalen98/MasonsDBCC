@@ -32,9 +32,20 @@ def process_pdf(pdf_path, db):
         print(f"Failed to add statement to database")
         return False
 
-    # Add P&L data
-    for line_item, amount in result['pnl_data'].items():
-        db.add_pnl_data(statement_id, line_item, amount)
+    # Add P&L data (Income Statement)
+    if result['pnl_data']:
+        for line_item, amount in result['pnl_data'].items():
+            db.add_pnl_data(statement_id, line_item, amount)
+
+    # Add Balance Sheet data
+    if result['balance_sheet_data']:
+        for line_item, amount in result['balance_sheet_data'].items():
+            db.add_balance_sheet_data(statement_id, line_item, amount)
+
+    # Add Cash Flow data
+    if result['cash_flow_data']:
+        for line_item, amount in result['cash_flow_data'].items():
+            db.add_cash_flow_data(statement_id, line_item, amount)
 
     # Mark as processed
     db.mark_statement_processed(statement_id)
