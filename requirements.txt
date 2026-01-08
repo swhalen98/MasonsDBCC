@@ -27,3 +27,9 @@ python-dotenv==1.0.1
 
 # Web server (Panel uses Tornado, not gunicorn)
 tornado==6.4
+
+# Google Drive API (optional - for automatic sync from Google Drive)
+google-auth==2.36.0
+google-auth-oauthlib==1.2.1
+google-auth-httplib2==0.2.0
+google-api-python-client==2.158.0

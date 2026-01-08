@@ -13,13 +13,18 @@ dist/
 build/
 
 # Database
+# Note: We KEEP *.duckdb files in git for persistence across Codespaces sessions
 *.db
-*.duckdb
+# *.duckdb  <- COMMENTED OUT so database persists in git
 *.duckdb.wal
 
 # Environment
 .env
 .env.local
+
+# Google Drive API credentials (NEVER commit these!)
+credentials.json
+token.pickle
 
 # Financial data
 financials/*.pdf

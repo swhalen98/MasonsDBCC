@@ -44,6 +44,7 @@ LOCATIONS = {
     "PAN": {"name": "Panama City Beach", "city": "Panama City Beach, FL", "status": "Open", "region": "Florida"},
     "REH": {"name": "Rehoboth Beach", "city": "Rehoboth Beach, DE", "status": "Open", "region": "Mid-Atlantic"},
     "RES": {"name": "Reston", "city": "Reston, VA", "status": "Open", "region": "Virginia"},
+    "SCO": {"name": "Scottsdale", "city": "Scottsdale, AZ", "status": "Open", "region": "Arizona"},
     "COC": {"name": "Coconut Point", "city": "Estero, FL", "status": "Coming soon", "region": "Southwest Florida"},
     "FLO": {"name": "Florence", "city": "Florence, Italy", "status": "Coming soon", "region": "International"},
 }
