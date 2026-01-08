@@ -103,6 +103,7 @@ Set up a GitHub Action to run monthly (see `AUTOMATION.md`)
 
 Organize your Google Drive folder like this:
 
+### Option 1: All Statements in One File
 ```
 Mason's Financials/
 ├── 2026-01_ANN.pdf
@@ -112,7 +113,35 @@ Mason's Financials/
 └── ...
 ```
 
-**File Naming**: Must follow `YYYY-MM_LocationCode.pdf` format!
+### Option 2: Separate Statement Files
+```
+Mason's Financials/
+├── 2026-01_ANN_IS.pdf
+├── 2026-01_ANN_BS.pdf
+├── 2026-01_ANN_CF.pdf
+├── 2026-01_SCO_IS.pdf
+├── 2026-01_SCO_BS.pdf
+└── ...
+```
+
+### Option 3: Mixed (Different Locations, Different Formats)
+```
+Mason's Financials/
+├── 2026-01_ANN.pdf              (all statements in one file)
+├── 2026-01_SCO_IS.pdf           (just income statement)
+├── 2026-01_SCO_BS.pdf           (just balance sheet)
+├── 2026-01_DEN_IS.pdf           (income statement)
+├── 2026-01_DEN_BS.pdf           (balance sheet)
+├── 2026-01_DEN_CF.pdf           (cash flow)
+└── ...
+```
+
+**File Naming Rules:**
+- Single file (all statements): `YYYY-MM_LocationCode.pdf`
+- Income Statement only: `YYYY-MM_LocationCode_IS.pdf`
+- Balance Sheet only: `YYYY-MM_LocationCode_BS.pdf`
+- Cash Flow only: `YYYY-MM_LocationCode_CF.pdf`
+- All statements (explicit): `YYYY-MM_LocationCode_ALL.pdf`
 
 ---
 

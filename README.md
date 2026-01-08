@@ -60,12 +60,31 @@ MasonsDBCC/
 
 ## 📋 File Naming Convention
 
+### Single File (All Statements)
 Format: `YYYY-MM_LocationCode.pdf`
 
 Examples:
-- `2026-01_ANN.pdf` - Annapolis, January 2026
-- `2026-02_DEN.pdf` - Denver, February 2026
-- `2025-12_MIL.pdf` - Milan, December 2025
+- `2026-01_ANN.pdf` - Annapolis, January 2026 (contains all statements)
+- `2026-02_DEN.pdf` - Denver, February 2026 (contains all statements)
+
+### Multiple Files (Separate Statement Types)
+Format: `YYYY-MM_LocationCode_TYPE.pdf`
+
+Types:
+- `IS` = Income Statement (P&L)
+- `BS` = Balance Sheet
+- `CF` = Cash Flow Statement
+- `ALL` = All statements (same as no suffix)
+
+Examples:
+- `2026-01_ANN_IS.pdf` - Annapolis Income Statement, January 2026
+- `2026-01_ANN_BS.pdf` - Annapolis Balance Sheet, January 2026
+- `2026-01_ANN_CF.pdf` - Annapolis Cash Flow, January 2026
+
+**You can mix and match:**
+- Upload just Income Statement: `2026-01_ANN_IS.pdf`
+- Upload all three separately: `2026-01_ANN_IS.pdf`, `2026-01_ANN_BS.pdf`, `2026-01_ANN_CF.pdf`
+- Upload combined file: `2026-01_ANN.pdf` or `2026-01_ANN_ALL.pdf`
 
 ### Location Codes
 
@@ -88,7 +107,9 @@ See `FILE_NAMING_CONVENTION.md` for complete list with city names.
 ### Monthly Workflow
 
 1. **Collect PDFs** from all locations
-2. **Rename** to format: `YYYY-MM_CODE.pdf`
+2. **Rename** to format:
+   - Single file: `YYYY-MM_CODE.pdf` (contains all statements)
+   - Or separate files: `YYYY-MM_CODE_IS.pdf`, `YYYY-MM_CODE_BS.pdf`, `YYYY-MM_CODE_CF.pdf`
 3. **Upload** to `financials/` folder via Codespace
 4. **Process**:
    ```bash
@@ -155,20 +176,24 @@ Edit CSV → Upload → Process
 
 1. **locations** - Location master data (code, name, city, region, status)
 2. **financial_statements** - Statement metadata (location, date, file)
-3. **pnl_data** - P&L line items and amounts
+3. **pnl_data** - Income Statement (P&L) line items and amounts
+4. **balance_sheet_data** - Balance Sheet line items and amounts
+5. **cash_flow_data** - Cash Flow Statement line items and amounts
 
 **Standard P&L Line Items:**
-- Total Revenue
-- Food Sales
-- Beverage Sales
-- Cost of Goods Sold
-- Gross Profit
-- Labor
-- Rent
-- Utilities
-- Marketing
-- Net Income
-- etc.
+- Total Revenue, Food Sales, Beverage Sales
+- Cost of Goods Sold, Gross Profit
+- Labor, Rent, Utilities, Marketing
+- Net Income, EBITDA, etc.
+
+**Balance Sheet Items:**
+- Cash, Accounts Receivable, Inventory
+- Total Assets, Accounts Payable
+- Total Liabilities, Owner's Equity, etc.
+
+**Cash Flow Items:**
+- Cash from Operations, Capital Expenditures
+- Net Change in Cash, Ending Cash, etc.
 
 ## 💻 Local Development
 

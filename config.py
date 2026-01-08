@@ -49,7 +49,7 @@ LOCATIONS = {
     "FLO": {"name": "Florence", "city": "Florence, Italy", "status": "Coming soon", "region": "International"},
 }
 
-# Standard P&L line items to extract
+# Standard P&L line items to extract (Income Statement)
 PNL_LINE_ITEMS = [
     "Total Revenue",
     "Food Sales",
@@ -67,6 +67,55 @@ PNL_LINE_ITEMS = [
     "Total Operating Expenses",
     "EBITDA",
     "Net Income",
+]
+
+# Balance Sheet line items to extract
+BALANCE_SHEET_ITEMS = [
+    # Assets
+    "Cash",
+    "Accounts Receivable",
+    "Inventory",
+    "Prepaid Expenses",
+    "Total Current Assets",
+    "Property & Equipment",
+    "Accumulated Depreciation",
+    "Net Property & Equipment",
+    "Other Assets",
+    "Total Assets",
+    # Liabilities
+    "Accounts Payable",
+    "Accrued Expenses",
+    "Short-term Debt",
+    "Total Current Liabilities",
+    "Long-term Debt",
+    "Total Liabilities",
+    # Equity
+    "Owner's Equity",
+    "Retained Earnings",
+    "Total Equity",
+    "Total Liabilities & Equity",
+]
+
+# Cash Flow line items to extract
+CASH_FLOW_ITEMS = [
+    # Operating Activities
+    "Net Income",
+    "Depreciation",
+    "Changes in Working Capital",
+    "Cash from Operations",
+    # Investing Activities
+    "Capital Expenditures",
+    "Asset Sales",
+    "Cash from Investing",
+    # Financing Activities
+    "Debt Proceeds",
+    "Debt Payments",
+    "Owner Distributions",
+    "Cash from Financing",
+    # Summary
+    "Net Change in Cash",
+    "Beginning Cash",
+    "Ending Cash",
 ]
 
 # Authentication (use environment variables in production)

@@ -8,38 +8,51 @@ import pdfplumber
 import pandas as pd
 from pathlib import Path
 from datetime import datetime
-from config import PNL_LINE_ITEMS, LOCATIONS
+from config import PNL_LINE_ITEMS, BALANCE_SHEET_ITEMS, CASH_FLOW_ITEMS, LOCATIONS
 
 
 class FinancialStatementParser:
-    """Parses financial statement PDFs and extracts P&L data"""
+    """Parses financial statement PDFs and extracts financial data"""
 
     def __init__(self):
-        self.line_items = PNL_LINE_ITEMS
+        self.pnl_items = PNL_LINE_ITEMS
+        self.balance_sheet_items = BALANCE_SHEET_ITEMS
+        self.cash_flow_items = CASH_FLOW_ITEMS
 
     def parse_filename(self, filename):
         """
-        Parse filename to extract date and location
-        Expected format: YYYY-MM_LocationCode.pdf
-        Returns: (year, month, location_code) or None if invalid
+        Parse filename to extract date, location, and statement type
+        Expected formats:
+            YYYY-MM_LocationCode.pdf (all statements)
+            YYYY-MM_LocationCode_ALL.pdf (all statements, explicit)
+            YYYY-MM_LocationCode_IS.pdf (income statement only)
+            YYYY-MM_LocationCode_BS.pdf (balance sheet only)
+            YYYY-MM_LocationCode_CF.pdf (cash flow only)
+        Returns: (year, month, location_code, statement_type) or None if invalid
         """
-        pattern = r'(\d{4})-(\d{2})_([A-Z0-9]+)\.pdf'
+        # Pattern with optional statement type suffix
+        pattern = r'(\d{4})-(\d{2})_([A-Z0-9]+)(?:_(IS|BS|CF|ALL))?\.pdf'
         match = re.match(pattern, filename)
 
         if match:
             year = int(match.group(1))
             month = int(match.group(2))
             location_code = match.group(3)
+            statement_type = match.group(4) or 'ALL'  # Default to ALL if not specified
 
             # Validate location code
             if location_code in LOCATIONS:
-                return year, month, location_code
+                return year, month, location_code, statement_type
             else:
                 print(f"Warning: Unknown location code '{location_code}' in {filename}")
                 return None
         else:
             print(f"Warning: Invalid filename format: {filename}")
-            print("Expected format: YYYY-MM_LocationCode.pdf (e.g., 2026-01_ANN.pdf)")
+            print("Expected formats:")
+            print("  YYYY-MM_LocationCode.pdf (e.g., 2026-01_ANN.pdf)")
+            print("  YYYY-MM_LocationCode_IS.pdf (income statement)")
+            print("  YYYY-MM_LocationCode_BS.pdf (balance sheet)")
+            print("  YYYY-MM_LocationCode_CF.pdf (cash flow)")
             return None
 
     def extract_text_from_pdf(self, pdf_path):
@@ -95,19 +108,19 @@ class FinancialStatementParser:
         except ValueError:
             return None
 
-    def extract_pnl_data(self, text, tables=None):
+    def extract_statement_data(self, text, tables, line_items):
         """
-        Extract P&L line items and amounts from text and tables
+        Generic method to extract financial statement line items and amounts
         Returns: dict of {line_item: amount}
         """
-        pnl_data = {}
+        data = {}
 
         # Method 1: Try to extract from tables first
         if tables:
             for table in tables:
                 df = pd.DataFrame(table[1:], columns=table[0] if table else None)
                 for _, row in df.iterrows():
-                    for line_item in self.line_items:
+                    for line_item in line_items:
                         # Check each cell for the line item name
                         for cell in row:
                             if cell and isinstance(cell, str):
@@ -116,15 +129,15 @@ class FinancialStatementParser:
                                     for value in row:
                                         amount = self.parse_amount(value)
                                         if amount is not None:
-                                            pnl_data[line_item] = amount
+                                            data[line_item] = amount
                                             break
                                     break
 
         # Method 2: Parse from text using regex
-        if not pnl_data and text:
+        if not data and text:
             lines = text.split('\n')
             for line in lines:
-                for line_item in self.line_items:
+                for line_item in line_items:
                     # Look for line item followed by amount
                     if line_item.lower() in line.lower():
                         # Extract numbers from the line
@@ -133,14 +146,26 @@ class FinancialStatementParser:
                             # Take the last amount on the line (usually the total)
                             amount = self.parse_amount(amounts[-1])
                             if amount is not None:
-                                pnl_data[line_item] = amount
+                                data[line_item] = amount
 
-        return pnl_data
+        return data
+
+    def extract_pnl_data(self, text, tables=None):
+        """Extract P&L/Income Statement data"""
+        return self.extract_statement_data(text, tables, self.pnl_items)
+
+    def extract_balance_sheet_data(self, text, tables=None):
+        """Extract Balance Sheet data"""
+        return self.extract_statement_data(text, tables, self.balance_sheet_items)
+
+    def extract_cash_flow_data(self, text, tables=None):
+        """Extract Cash Flow Statement data"""
+        return self.extract_statement_data(text, tables, self.cash_flow_items)
 
     def parse_pdf(self, pdf_path):
         """
         Main parsing function
-        Returns: dict with metadata and P&L data or None if failed
+        Returns: dict with metadata and all extracted statement data or None if failed
         """
         pdf_path = Path(pdf_path)
 
@@ -149,11 +174,12 @@ class FinancialStatementParser:
         if not file_info:
             return None
 
-        year, month, location_code = file_info
+        year, month, location_code, statement_type = file_info
 
         print(f"Processing: {pdf_path.name}")
         print(f"  Location: {LOCATIONS[location_code]['name']}")
         print(f"  Period: {year}-{month:02d}")
+        print(f"  Statement Type: {statement_type}")
 
         # Extract text and tables
         text = self.extract_text_from_pdf(pdf_path)
@@ -163,22 +189,42 @@ class FinancialStatementParser:
             print(f"  Error: Could not extract any data from PDF")
             return None
 
-        # Extract P&L data
-        pnl_data = self.extract_pnl_data(text, tables)
+        # Extract data based on statement type
+        pnl_data = {}
+        balance_sheet_data = {}
+        cash_flow_data = {}
 
-        if not pnl_data:
-            print(f"  Warning: No P&L line items found. Manual review may be needed.")
-            print(f"  Please check the PDF format and ensure it contains standard P&L items.")
+        if statement_type in ['ALL', 'IS']:
+            pnl_data = self.extract_pnl_data(text, tables)
+            if pnl_data:
+                print(f"  Extracted {len(pnl_data)} P&L line items")
+            else:
+                print(f"  Warning: No P&L line items found.")
+
+        if statement_type in ['ALL', 'BS']:
+            balance_sheet_data = self.extract_balance_sheet_data(text, tables)
+            if balance_sheet_data:
+                print(f"  Extracted {len(balance_sheet_data)} Balance Sheet line items")
+            else:
+                print(f"  Warning: No Balance Sheet line items found.")
+
+        if statement_type in ['ALL', 'CF']:
+            cash_flow_data = self.extract_cash_flow_data(text, tables)
+            if cash_flow_data:
+                print(f"  Extracted {len(cash_flow_data)} Cash Flow line items")
+            else:
+                print(f"  Warning: No Cash Flow line items found.")
 
         result = {
             'year': year,
             'month': month,
             'location_code': location_code,
+            'statement_type': statement_type,
             'file_name': pdf_path.name,
-            'pnl_data': pnl_data
+            'pnl_data': pnl_data,
+            'balance_sheet_data': balance_sheet_data,
+            'cash_flow_data': cash_flow_data
         }
-
-        print(f"  Extracted {len(pnl_data)} line items")
 
         return result
 
