@@ -47,50 +47,59 @@ YYYY-MM_LocationCode_CF.pdf  (Cash Flow Statement)
 
 | Location Code | Location Name | City, State/Country | Status |
 |--------------|---------------|---------------------|--------|
-| ANN | Annapolis | Annapolis, MD | Open |
-| ARL | Arlington – Village at Shirlington | Arlington, VA | Open |
+| ANN | Annapolis #101 | Annapolis, MD | Open |
+| AAV | Atlantic Avenue #122 | Virginia Beach, VA | Open |
+| ARL | Arlington #121 | Arlington, VA | Open |
 | AUS | Austin | Austin, TX | Open |
-| BEL | Belleair Bluffs | Belleair Bluffs, FL | Open |
-| BVS | Belvedere Square | Baltimore, MD | Open |
-| CAR | Cary – Waverly Place | Cary, NC | Open |
-| CHS | Charleston | Charleston, SC | Open |
-| CLT | Charlotte | Charlotte, NC | Open |
-| COS | Colorado Springs | Colorado Springs, CO | Open |
-| DAL | Dallas | Dallas, TX | Coming soon |
-| DEN | Denver | Denver, CO | Open |
-| DUP | Dupont Circle | Washington, DC | Open |
-| FAL | Falls Church | Falls Church, VA | Open |
-| FER | Fernandina Beach | Fernandina Beach, FL | Open |
-| FMD | Fort Myers – Downtown | Fort Myers, FL | Open |
-| FMD2 | Fort Myers – Daniels Parkway | Fort Myers, FL | Coming soon |
-| GAI | Gaithersburg – Rio Lakefront | Gaithersburg, MD | Open |
-| HAR | Harborplace | Baltimore, MD | Open |
-| LON | Long Branch | Long Branch, NJ | Open |
-| MOA | Mall of America | Bloomington, MN | Open |
-| MAR | Marina Village | Fort Lauderdale, FL | Open |
-| MID | Midlothian | Midlothian, VA | Open |
-| MIL | Milan | Milan, Italy | Open |
-| NAT | National Harbor | National Harbor, MD | Open |
-| PAN | Panama City Beach | Panama City Beach, FL | Open |
-| REH | Rehoboth Beach | Rehoboth Beach, DE | Open |
-| RES | Reston | Reston, VA | Open |
-| SCO | Scottsdale | Scottsdale, AZ | Open |
-| COC | Coconut Point | Estero, FL | Coming soon |
+| BEL | Belleair Bluffs #129 | Belleair Bluffs, FL | Open |
+| BVS | Belvedere Square #103 | Baltimore, MD | Open |
+| CHS | Charleston #106 | Charleston, SC | Open |
+| CLT | Charlotte #136 | Charlotte, NC | Open |
+| COC | Coconut Point #140 | Estero, FL | Coming soon |
+| COS | Colorado Springs #137 | Colorado Springs, CO | Open |
+| DAL | Dallas #139 | Dallas, TX | Open |
+| DEN | Denver #117 | Denver, CO | Open |
+| DUP | Dupont #110 | Washington, DC | Open |
+| EPR | E Pratt #103 | Baltimore, MD | Open |
+| FAL | Falls Church #135 | Falls Church, VA | Open |
+| FER | Fernandina #126 | Fernandina Beach, FL | Open |
 | FLO | Florence | Florence, Italy | Coming soon |
+| FTL | Ft. Lauderdale | Ft. Lauderdale, FL | Open |
+| FDC | Ft. Myers/Daniel's Crossing #138 | Ft. Myers, FL | Open |
+| FDP | Ft. Myers/Downtown #130 | Ft. Myers, FL | Open |
+| GAI | Gaithersburg - Rosé 130 | Gaithersburg, MD | Open |
+| LON | Long Branch #126 | Long Branch, NJ | Open |
+| MID | Midlothian #131 | Midlothian, VA | Open |
+| MIT | Milan - Via Torino | Milan, Italy | Open |
+| MIV | Milan - Via Vespucci | Milan, Italy | Open |
+| MOA | Mall Of America #113 | Bloomington, MN | Open |
+| NAT | National Harbor #104 | National Harbor, MD | Open |
+| PAN | Panama City Beach #124 | Panama City Beach, FL | Open |
+| REH | Rehoboth #102 | Rehoboth Beach, DE | Open |
+| RES | Reston #105 | Reston, VA | Open |
+| RID | Ridgewood | Ridgewood, NJ | Open |
+| SAU | Saucon Valley | Saucon Valley, PA | Open |
+| SCO | Scottsdale #118 | Scottsdale, AZ | Open |
+| SDV | Shore Drive #116 | Virginia Beach, VA | Open |
+| SPV | Short Pump #137 | Richmond, VA | Open |
+| SJF | St. Johns Town Center #133 | Jacksonville, FL | Open |
+| WAL | Waldorf | Waldorf, MD | Open |
+| WES | Western Market #114 | Washington, DC | Open |
+| WHA | Wharf #125 | Washington, DC | Open |
 
 ## Region Mapping
 
-- **Mid-Atlantic**: ANN, BVS, DUP, GAI, HAR, NAT (Maryland/DC area)
-- **Virginia**: ARL, FAL, MID, RES
-- **Carolinas**: CAR, CHS, CLT
-- **Florida**: BEL, FER, FMD, FMD2, MAR, PAN, COC
-- **Southwest Florida**: FMD, FMD2, BEL, COC
+- **Mid-Atlantic**: ANN, BVS, DUP, EPR, GAI, NAT, REH, WAL, WES, WHA (Maryland/DC/Delaware area)
+- **Virginia**: AAV, ARL, FAL, MID, RES, SDV, SPV
+- **Carolinas**: CHS, CLT
+- **Southwest Florida**: BEL, FTL, FDC, FDP, COC
+- **Northeast Florida**: FER, PAN, SJF
 - **Texas**: AUS, DAL
 - **Colorado**: COS, DEN
 - **Arizona**: SCO
-- **Northeast**: LON
+- **Northeast**: LON, RID, SAU
 - **Midwest**: MOA
-- **International**: MIL, FLO
+- **International-Europe**: MIT, MIV, FLO
 
 ## Instructions for Uploading
 
