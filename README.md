@@ -4,7 +4,7 @@
 
 ## 🎯 What This Does
 
-Automatically processes monthly financial statements (PDFs) from 29 locations and displays them in an interactive, password-protected dashboard with:
+Automatically processes monthly financial statements (PDFs) from 39 locations and displays them in an interactive, password-protected dashboard with:
 - Consolidated view across all locations
 - Drill-down by region or individual location
 - Revenue trends and P&L breakdowns
@@ -18,8 +18,8 @@ Automatically processes monthly financial statements (PDFs) from 29 locations an
 - **📱 iPad-Friendly** - Upload and manage from iPad using GitHub Codespaces
 - **🤖 Automated Processing** - PDF parsing with fallback to manual entry
 - **💾 DuckDB Database** - Fast, embedded analytics database
-- **📍 29 Locations** - US (27) + International (2)
-- **🌍 Regional Grouping** - Mid-Atlantic, Virginia, Carolinas, Florida, Texas, Colorado, etc.
+- **📍 39 Locations** - US (36) + International (3)
+- **🌍 Regional Grouping** - Mid-Atlantic, Virginia, Carolinas, Florida, Texas, Colorado, Arizona, Northeast, Midwest, International
 - **💰 Free Hosting** - GitHub + Render.com free tiers
 
 ## 🚀 Quick Start
@@ -90,15 +90,17 @@ Examples:
 
 | Region | Codes |
 |--------|-------|
-| **Mid-Atlantic** | ANN, BVS, DUP, GAI, HAR, NAT |
-| **Virginia** | ARL, FAL, MID, RES |
-| **Carolinas** | CAR, CHS, CLT |
-| **Florida** | BEL, FER, FMD, FMD2, MAR, PAN, COC |
+| **Mid-Atlantic** | ANN, BVS, DUP, EPR, GAI, NAT, REH, WAL, WES, WHA |
+| **Virginia** | AAV, ARL, FAL, MID, RES, SDV, SPV |
+| **Carolinas** | CHS, CLT |
+| **Southwest Florida** | BEL, FTL, FDC, FDP, COC |
+| **Northeast Florida** | FER, PAN, SJF |
 | **Texas** | AUS, DAL |
 | **Colorado** | COS, DEN |
-| **Northeast** | LON, REH |
+| **Arizona** | SCO |
+| **Northeast** | LON, RID, SAU |
 | **Midwest** | MOA |
-| **International** | MIL, FLO |
+| **International** | MIT, MIV, FLO |
 
 See `FILE_NAMING_CONVENTION.md` for complete list with city names.
 
@@ -341,13 +343,13 @@ Questions or issues?
 
 ## ✅ Status
 
-**All 29 Locations:**
+**All 39 Locations:**
 
-✅ Open (23):
-Annapolis, Arlington, Austin, Belleair Bluffs, Belvedere Square, Cary, Charleston, Charlotte, Colorado Springs, Denver, Dupont Circle, Falls Church, Fernandina Beach, Fort Myers Downtown, Gaithersburg, Harborplace, Long Branch, Mall of America, Marina Village, Midlothian, Milan, National Harbor, Panama City Beach, Rehoboth Beach, Reston
+✅ Open (37):
+Annapolis, Atlantic Avenue, Arlington, Austin, Belleair Bluffs, Belvedere Square, Charleston, Charlotte, Colorado Springs, Dallas, Denver, Dupont, E Pratt, Falls Church, Fernandina, Ft. Lauderdale, Ft. Myers Daniel's Crossing, Ft. Myers Downtown, Gaithersburg, Long Branch, Midlothian, Milan Via Torino, Milan Via Vespucci, Mall of America, National Harbor, Panama City Beach, Rehoboth, Reston, Ridgewood, Saucon Valley, Scottsdale, Shore Drive, Short Pump, St. Johns Town Center, Waldorf, Western Market, Wharf
 
-🔜 Coming Soon (6):
-Dallas, Fort Myers Daniels, Coconut Point, Florence
+🔜 Coming Soon (2):
+Coconut Point, Florence
 
 **Dashboard**: ✅ Deployed
 **Database**: ✅ Initialized
